@@ -1,5 +1,5 @@
 # Usar Python 3.12 como imagen base
-FROM python:3.12-slim
+FROM openshift/python-312:1-16.1720406019
 
 # Instalar herramientas necesarias para compilar C++ y dependencias
 RUN apt-get update && apt-get install -y \
