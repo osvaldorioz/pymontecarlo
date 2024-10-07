@@ -6,7 +6,7 @@ import pybind11
 ext_modules = [
     Extension(
         'pi_montecarlo',                        # Nombre del módulo
-        ['pi_montecarlo.cpp'],               # Archivo fuente C++
+        ['app/pi_montecarlo.cpp'],               # Archivo fuente C++
         include_dirs=[pybind11.get_include()],  # Incluir encabezados de Pybind11
         language='c++'
     )
