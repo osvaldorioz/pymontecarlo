@@ -1,29 +1,31 @@
-# Usar Python 3.12 como imagen base
-FROM openshift/python-312:1-16.1720406019
+# Usa una imagen base con Python 3.12
+FROM python:3.12-slim
 
-# Instalar herramientas necesarias para compilar C++ y dependencias
+# Instala las dependencias necesarias para compilar C++
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
-    && rm -rf /var/lib/apt/lists/*
+    g++ \
+    python3-dev \
+    && apt-get clean
 
-# Establecer directorio de trabajo
+# Instalar PyBind11
+RUN pip install pybind11
+
+# Copia el código fuente
+COPY . /app
 WORKDIR /app
 
-# Copiar los archivos de requerimientos e instalarlos
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar el código de la aplicación y los archivos de construcción
-COPY . .
-
-# Compilar la biblioteca de C++ con Pybind11
-#RUN python setup.py build_ext --inplace
+# Compilar el código C++ y Python con PyBind11
 RUN c++ -Ofast -Wall -shared -std=c++20 -fPIC $(python3.12 -m pybind11 --includes) app/pi_montecarlo.cpp -o pi_montecarlo$(python3.12-config --extension-suffix)
 
+# Instalar cualquier otra dependencia Python
+RUN pip install -r requirements.txt
 
-# Exponer el puerto para Uvicorn
+# Exponer el puerto de la aplicación (por ejemplo, 8000 para FastAPI)
 EXPOSE 8000
 
-# Comando para correr la aplicación Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Comando para ejecutar el microservicio
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
